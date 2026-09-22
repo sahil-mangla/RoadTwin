@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Schema & Core Data Contracts
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-09-22T14:10:49.251Z"
+stopped_at: Completed 01-04-PLAN.md
+last_updated: "2026-09-22T14:21:17.218Z"
 last_activity: 2026-09-22
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-09-22)
 ## Current Position
 
 Phase: 01 (Schema & Core Data Contracts) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-09-22 — Phase 01 execution started
 
-Progress: [██████░░░░] 60%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [██████░░░░] 60%
 | Phase 01 P01 | 20min | 3 tasks | 21 files |
 | Phase 01 P02 | 25min | 2 tasks | 16 files |
 | Phase 01 P03 | 12min | 2 tasks | 14 files |
+| Phase 01 P04 | 30min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 01-02: report_status_enum needs values_callable so Postgres stores D-06's lowercase enum values, not uppercase Python enum member names
 - [Phase ?]: 01-03: Added noValidate to the report form so HTML min/max attributes stay a convenience hint only -- server-side ReportCreate validation is the sole authority, exposing the 422 error in the UI as the threat model requires
 - [Phase ?]: 01-03: Resolved unpinned frontend devDependency versions via npm view at execution time (typescript 7.0.2, @vitejs/plugin-react 6.1.1, @types/react(-dom) 19.3.0) rather than guessing
+- [Phase ?]: 01-04: None of the six new entities use TimestampedMixin -- only Report has created_at distinct from timestamp; the other six's own timestamp-shaped fields (observed_at/measured_at/generated_at) are the spec's actual columns
+- [Phase ?]: 01-04: Detection.status binds to the literal report_status_enum object (not a new sa.Enum instance) so Postgres carries exactly one report_status type across both migrations
 
 ### Pending Todos
 
@@ -98,6 +101,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-22T14:10:49.247Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-09-22T14:21:17.214Z
+Stopped at: Completed 01-04-PLAN.md
 Resume file: None

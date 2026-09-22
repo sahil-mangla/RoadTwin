@@ -10,7 +10,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Schema (SCHM)
 
 - [x] **SCHM-01**: System persists Report, Detection, RoadSegment, RoadObservation, RoadHealth, Prediction, and MaintenanceRecommendation as distinct, related entities
-- [ ] **SCHM-02**: RoadObservation, RoadHealth, and Prediction are append-only time-series records (never mutated in place), so deterioration/forecast can be computed from history
+- [x] **SCHM-02**: RoadObservation, RoadHealth, and Prediction are append-only time-series records (never mutated in place), so deterioration/forecast can be computed from history
 - [x] **SCHM-03**: Report and Detection carry a status lifecycle (e.g. unverified → corroborated → evidence-confirmed) rather than being treated as confirmed fact on arrival
 - [x] **SCHM-04**: Report captures GPS accuracy/error-radius metadata alongside latitude/longitude, not just a bare coordinate pair
 
@@ -118,7 +118,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SCHM-01 | Phase 1 | Complete |
-| SCHM-02 | Phase 1 | Pending |
+| SCHM-02 | Phase 1 | Complete |
 | SCHM-03 | Phase 1 | Complete |
 | SCHM-04 | Phase 1 | Complete |
 | INGT-01 | Phase 2 | Pending |
