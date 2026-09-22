@@ -135,7 +135,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EVID-02 | Phase 5 | Pending |
 | EVID-03 | Phase 5 | Pending |
 | EVID-04 | Phase 5 | Pending |
-| HLTH-01 | Phase 6 | Pending |
+| HLTH-01 | Phase 5 | Pending |
 | HLTH-02 | Phase 6 | Pending |
 | HLTH-03 | Phase 6 | Pending |
 | HLTH-04 | Phase 6 | Pending |
@@ -158,9 +158,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 **Coverage:**
 - v1 requirements: 38 total
-- Mapped to phases: 38 (provisional — final mapping confirmed by roadmapper)
+- Mapped to phases: 38 (confirmed by roadmapper)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-09-22*
-*Last updated: 2026-09-22 after initial definition*
+*Last updated: 2026-09-22 after roadmap creation (HLTH-01 reassigned Phase 6 -> Phase 5: it belongs with the RoadObservation history created during evidence fusion, not the health-score computation that consumes it)*
