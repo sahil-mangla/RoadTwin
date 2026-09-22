@@ -32,10 +32,19 @@ class BaseRepository(Generic[T]):
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def list(self, limit: int = 50, **filters) -> list[T]:
+    async def list(
+        self,
+        limit: int = 50,
+        order_by: str | None = None,
+        descending: bool = False,
+        **filters,
+    ) -> list[T]:
         stmt = sa.select(self.model)
         for field, value in filters.items():
             stmt = stmt.where(getattr(self.model, field) == value)
+        if order_by is not None:
+            column = getattr(self.model, order_by)
+            stmt = stmt.order_by(column.desc() if descending else column.asc())
         stmt = stmt.limit(limit)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

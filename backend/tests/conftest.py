@@ -90,24 +90,24 @@ async def session(migrated_database, async_engine):
 
 
 @pytest_asyncio.fixture
-async def client(request):
+async def client(session):
     """An httpx.AsyncClient bound to the app through an ASGI transport.
 
-    `backend.main` is imported lazily, inside the fixture body -- and
-    deliberately *before* the `session` fixture is requested -- so that
-    before Plan 02 exists, this fixture fails with a plain
-    `ModuleNotFoundError: backend.main` (the correct RED reason) rather
-    than an unrelated Alembic/migration skip further down the dependency
-    chain. `session` is pulled in lazily via `request.getfixturevalue`
-    (still fully torn down by pytest's normal fixture finalization) only
-    once the app import has already succeeded.
+    Now that Plan 02 has created `backend.main`, `session` can be a normal
+    fixture dependency again. An earlier revision pulled `session` in
+    lazily via `request.getfixturevalue(...)` specifically so a
+    pre-Plan-02 run would fail with a plain `ModuleNotFoundError:
+    backend.main` (the correct RED reason) instead of an unrelated
+    Alembic/migration skip further down the chain -- that trick is no
+    longer needed and was also incompatible with pytest-asyncio's fixture
+    runner (`request.getfixturevalue` on an async fixture from inside
+    another async fixture raises "Runner.run() cannot be called from a
+    running event loop").
     """
     import httpx
 
     from backend.main import app
     from backend.db.session import get_session
-
-    session = request.getfixturevalue("session")
 
     async def _override_get_session():
         yield session
