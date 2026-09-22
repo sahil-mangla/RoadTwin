@@ -9,8 +9,14 @@ from typing import Generic, TypeVar
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.models.geo import make_point
+from backend.models.detection import Detection
+from backend.models.geo import make_linestring, make_point
+from backend.models.maintenance_recommendation import MaintenanceRecommendation
+from backend.models.prediction import Prediction
 from backend.models.report import Report
+from backend.models.road_health import RoadHealth
+from backend.models.road_observation import RoadObservation
+from backend.models.road_segment import RoadSegment
 
 T = TypeVar("T")
 
@@ -82,3 +88,68 @@ class ReportRepository(MutableRepository[Report]):
                 "location": make_point(kwargs["latitude"], kwargs["longitude"]),
             }
         return await super().create(**kwargs)
+
+
+class DetectionRepository(MutableRepository[Detection]):
+    model = Detection
+
+
+class RoadSegmentRepository(MutableRepository[RoadSegment]):
+    model = RoadSegment
+
+    async def create(self, **kwargs) -> RoadSegment:
+        if "geometry" not in kwargs:
+            kwargs = {
+                **kwargs,
+                "geometry": make_linestring(
+                    kwargs["start_lat"],
+                    kwargs["start_lng"],
+                    kwargs["end_lat"],
+                    kwargs["end_lng"],
+                ),
+            }
+        return await super().create(**kwargs)
+
+
+class MaintenanceRecommendationRepository(MutableRepository[MaintenanceRecommendation]):
+    model = MaintenanceRecommendation
+
+
+class RoadObservationRepository(AppendOnlyRepository[RoadObservation]):
+    """Adds nothing beyond what `AppendOnlyRepository` provides -- deliberately (SCHM-02, D-08).
+
+    RoadObservation rows are the raw longitudinal evidence stream Phase 5's
+    evidence fusion produces and Phase 6's health-score/deterioration-rate
+    formulas read in full, from the beginning of a segment's history. Any
+    method that could replace or erase a row here would silently rewrite
+    that history out from under every formula that assumes it only ever
+    grows.
+    """
+
+    model = RoadObservation
+
+
+class RoadHealthRepository(AppendOnlyRepository[RoadHealth]):
+    """Adds nothing beyond what `AppendOnlyRepository` provides -- deliberately (SCHM-02, D-08).
+
+    RoadHealth rows are point-in-time health measurements. Phase 6's
+    deterioration-rate calculation and Phase 8's forecast-accuracy tracking
+    both depend on every prior measurement remaining exactly as recorded --
+    a method that could replace or erase one would corrupt the trend they
+    are computed from.
+    """
+
+    model = RoadHealth
+
+
+class PredictionRepository(AppendOnlyRepository[Prediction]):
+    """Adds nothing beyond what `AppendOnlyRepository` provides -- deliberately (SCHM-02, D-08).
+
+    Prediction rows are forecasts recorded at the moment they were made.
+    FCST-03's accuracy tracking joins a Prediction row against a later
+    RoadHealth row to see how the forecast actually played out -- that
+    comparison is meaningless if a Prediction's original values could ever
+    be changed after the fact to match what really happened.
+    """
+
+    model = Prediction
