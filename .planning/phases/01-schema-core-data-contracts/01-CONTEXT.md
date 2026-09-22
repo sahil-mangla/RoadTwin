@@ -43,7 +43,8 @@ This is an infrastructure/schema phase with few user-facing gray areas — most 
 **Downstream agents MUST read these before planning or implementing.**
 
 ### Project scope & data model
-- `.planning/PROJECT.md` §4 (Data Model) — verbatim field lists for all 7 entities; §Context — suggested backend module layout
+- `.planning/reference/RoadTwin-Architecture-Input-Spec.md` §4 (Data Model) — **canonical, verbatim field lists for all 7 entities** (Report, Detection, RoadSegment, RoadObservation, RoadHealth, Prediction, MaintenanceRecommendation). Corrects an earlier dangling reference: PROJECT.md originally cited a source PDF that was never committed to the repo — this file is the transcribed, git-tracked replacement and is now the actual source of truth. §13 also has a suggested `backend/` module layout (note: it omits a model file for MaintenanceRecommendation — add `models/maintenance_recommendation.py` to cover all 7 entities).
+- `.planning/PROJECT.md` — project-level context and constraints; §Context points to the reference spec above
 - `.planning/REQUIREMENTS.md` — SCHM-01..04 (this phase's requirements), plus INGT/PERC/SPAT/EVID/HLTH downstream requirements that depend on this phase's schema decisions
 - `.planning/ROADMAP.md` Phase 1 section — goal and success criteria this phase must satisfy
 
