@@ -1,8 +1,16 @@
-import type { Report, ReportCreatePayload } from "../types";
+import type {
+  ChainSeedResult,
+  Report,
+  ReportCreatePayload,
+  ReportStatus,
+  SchemaStatus,
+} from "../types";
 
 // Relative URLs so the Vite dev proxy (vite.config.ts) routes these to
 // the FastAPI backend -- no hardcoded host/port here.
 const REPORTS_URL = "/api/skeleton/reports";
+const CHAIN_URL = "/api/skeleton/chain";
+const SCHEMA_STATUS_URL = "/api/skeleton/schema-status";
 
 /**
  * Builds a readable error message from a failed fetch response, including
@@ -44,6 +52,37 @@ export async function createReport(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw await toError(response);
+  }
+  return (await response.json()) as Report;
+}
+
+export async function getSchemaStatus(): Promise<SchemaStatus> {
+  const response = await fetch(SCHEMA_STATUS_URL);
+  if (!response.ok) {
+    throw await toError(response);
+  }
+  return (await response.json()) as SchemaStatus;
+}
+
+export async function seedChain(): Promise<ChainSeedResult> {
+  const response = await fetch(CHAIN_URL, { method: "POST" });
+  if (!response.ok) {
+    throw await toError(response);
+  }
+  return (await response.json()) as ChainSeedResult;
+}
+
+export async function updateReportStatus(
+  id: string,
+  status: ReportStatus,
+): Promise<Report> {
+  const response = await fetch(`${REPORTS_URL}/${id}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
   });
   if (!response.ok) {
     throw await toError(response);

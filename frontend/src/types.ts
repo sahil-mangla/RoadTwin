@@ -34,3 +34,29 @@ export interface Report {
   verification_score: number | null;
   created_at: string;
 }
+
+// Mirrors backend/schemas/skeleton.py exactly.
+
+/** One row of a live per-entity row count from GET /api/skeleton/schema-status. */
+export interface EntityCount {
+  entity: string;
+  count: number;
+}
+
+/** The full schema-status panel payload -- seven entities plus their sum. */
+export interface SchemaStatus {
+  entities: EntityCount[];
+  total_rows: number;
+}
+
+/** The seven ids written by one POST /api/skeleton/chain call. */
+export interface ChainSeedResult {
+  report_id: string;
+  detection_id: string;
+  road_segment_id: string;
+  road_observation_id: string;
+  road_health_id: string;
+  prediction_id: string;
+  maintenance_recommendation_id: string;
+  seeded_at: string;
+}

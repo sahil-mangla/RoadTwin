@@ -1,11 +1,27 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { createReport, listReports } from "../api/client";
-import type { Report } from "../types";
+import {
+  createReport,
+  getSchemaStatus,
+  listReports,
+  seedChain,
+  updateReportStatus,
+} from "../api/client";
+import type { Report, ReportStatus, SchemaStatus } from "../types";
 
 // Pre-fill values so the page is usable in one click (Bengaluru coords).
 const DEFAULT_LATITUDE = "12.9716";
 const DEFAULT_LONGITUDE = "77.5946";
+
+// The four D-06 lifecycle values, iterated to build the status select's
+// options -- the value itself is also the label, so no separate literal
+// label list exists anywhere in this file.
+const REPORT_STATUSES: ReportStatus[] = [
+  "unverified",
+  "corroborated",
+  "evidence_confirmed",
+  "rejected",
+];
 
 function formatAccuracy(meters: number | null): string {
   return meters === null ? "no accuracy reported" : `${meters} m`;
@@ -20,11 +36,21 @@ export function SkeletonPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+  const [schemaStatus, setSchemaStatus] = useState<SchemaStatus | null>(null);
 
   const [latitude, setLatitude] = useState(DEFAULT_LATITUDE);
   const [longitude, setLongitude] = useState(DEFAULT_LONGITUDE);
   const [accuracy, setAccuracy] = useState("");
   const [description, setDescription] = useState("");
+
+  const refreshSchemaStatus = useCallback(async () => {
+    try {
+      setSchemaStatus(await getSchemaStatus());
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }, []);
 
   useEffect(() => {
     listReports()
@@ -36,7 +62,8 @@ export function SkeletonPage() {
         setError(err instanceof Error ? err.message : String(err));
         setLoading(false);
       });
-  }, []);
+    void refreshSchemaStatus();
+  }, [refreshSchemaStatus]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,6 +77,7 @@ export function SkeletonPage() {
         description: description === "" ? null : description,
       });
       setReports((prev) => [created, ...prev]);
+      await refreshSchemaStatus();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -57,8 +85,66 @@ export function SkeletonPage() {
     }
   }
 
+  async function handleSeedChain() {
+    setSeeding(true);
+    setError(null);
+    try {
+      await seedChain();
+      const data = await listReports();
+      setReports(data);
+      await refreshSchemaStatus();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSeeding(false);
+    }
+  }
+
+  async function handleStatusChange(report: Report, status: ReportStatus) {
+    setError(null);
+    try {
+      const updated = await updateReportStatus(report.id, status);
+      setReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
   return (
     <section>
+      <h2>Schema status</h2>
+      {schemaStatus && (
+        <table>
+          <thead>
+            <tr>
+              <th>Entity</th>
+              <th>Row count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {schemaStatus.entities.map((row) => (
+              <tr key={row.entity}>
+                <td>{row.entity}</td>
+                <td>{row.count}</td>
+              </tr>
+            ))}
+            <tr>
+              <td>total</td>
+              <td>{schemaStatus.total_rows}</td>
+            </tr>
+          </tbody>
+        </table>
+      )}
+      <p>
+        These are raw table row counts proving the Phase 1 schema is
+        reachable. Pressing Seed twice increases the observation, health
+        and prediction counts each time, because those three entities are
+        append-only.
+      </p>
+      <button type="button" onClick={handleSeedChain} disabled={seeding}>
+        {seeding ? "Seeding..." : "Seed 7-entity chain"}
+      </button>
+
       <h2>Submit a report</h2>
       <p>
         These are raw schema fields straight from Postgres -- not
@@ -147,6 +233,18 @@ export function SkeletonPage() {
                 <td>{report.description ?? "--"}</td>
                 <td>
                   <span className="status-badge">{report.status}</span>
+                  <select
+                    value={report.status}
+                    onChange={(e) =>
+                      handleStatusChange(report, e.target.value as ReportStatus)
+                    }
+                  >
+                    {REPORT_STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
                 </td>
               </tr>
             ))}
