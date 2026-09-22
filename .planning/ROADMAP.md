@@ -13,7 +13,7 @@ RoadTwin is built as a strictly staged pipeline, in the order the architecture s
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Schema & Core Data Contracts** - Lock the seven-entity data model (append-only history, status lifecycles, GPS accuracy) before any intelligence code is written
+- [x] **Phase 1: Schema & Core Data Contracts** - Lock the seven-entity data model (append-only history, status lifecycles, GPS accuracy) before any intelligence code is written (completed 2026-09-22)
 - [ ] **Phase 2: Ingestion, Citizen Identity & Rate Limiting** - Citizens can safely submit geotagged photo reports, attributed and spam-protected
 - [ ] **Phase 3: Async Perception Pipeline** - Every submitted image is run through YOLOv8/RDD2022 in the background, with every detection persisted individually
 - [ ] **Phase 4: Spatial Clustering & Segment Identity** - Near-duplicate reports merge via DBSCAN into road segments with stable, reconciled identity
@@ -143,7 +143,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schema & Core Data Contracts | 5/5 | In Progress|  |
+| 1. Schema & Core Data Contracts | 5/5 | Complete    | 2026-09-22 |
 | 2. Ingestion, Citizen Identity & Rate Limiting | 0/TBD | Not started | - |
 | 3. Async Perception Pipeline | 0/TBD | Not started | - |
 | 4. Spatial Clustering & Segment Identity | 0/TBD | Not started | - |
