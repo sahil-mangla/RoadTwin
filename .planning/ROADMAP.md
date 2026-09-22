@@ -36,11 +36,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Report and Detection records carry a status field that starts at "unverified" and can transition through defined lifecycle states (e.g. unverified → corroborated → evidence-confirmed).
   4. A Report's location is stored with a GPS accuracy/error-radius value alongside latitude/longitude, not a bare coordinate pair.
 
-**Plans**: 1/5 plans executed
+**Plans**: 2/5 plans executed
 Plans:
 
 - [x] 01-01-PLAN.md — Stack boots: Postgres 16 + PostGIS 3.4 up, Report ORM/contract/repository defined, end-to-end skeleton test written RED
-- [ ] 01-02-PLAN.md — Alembic wired and revision 0001 applied to the live database; FastAPI skeleton API takes the e2e test green
+- [x] 01-02-PLAN.md — Alembic wired and revision 0001 applied to the live database; FastAPI skeleton API takes the e2e test green
 - [ ] 01-03-PLAN.md — React 19 + Vite frontend page creates and lists reports in a browser; README documents the full-stack run
 - [ ] 01-04-PLAN.md — The six remaining entities, their relationships, the append-only repository split, and revision 0002
 - [ ] 01-05-PLAN.md — Seven-entity chain seed, live schema-status panel and status-lifecycle transitions made observable
@@ -143,7 +143,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schema & Core Data Contracts | 1/5 | In Progress|  |
+| 1. Schema & Core Data Contracts | 2/5 | In Progress|  |
 | 2. Ingestion, Citizen Identity & Rate Limiting | 0/TBD | Not started | - |
 | 3. Async Perception Pipeline | 0/TBD | Not started | - |
 | 4. Spatial Clustering & Segment Identity | 0/TBD | Not started | - |

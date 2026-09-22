@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Schema & Core Data Contracts
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-09-22T13:42:37.377Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-09-22T13:56:46.357Z"
 last_activity: 2026-09-22
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 5
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-09-22)
 ## Current Position
 
 Phase: 01 (Schema & Core Data Contracts) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-09-22 — Phase 01 execution started
 
-Progress: [██░░░░░░░░] 20%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [██░░░░░░░░] 20%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01 P01 | 20min | 3 tasks | 21 files |
+| Phase 01 P02 | 25min | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Recent decisions affecting current work:
 - Roadmap: HLTH-01 (longitudinal RoadObservation history) reassigned from Phase 6 to Phase 5 — it is a deliverable of evidence fusion (where RoadObservation records are created), not of health-score computation (which consumes that history).
 - [Phase ?]: 01-01: Used Python 3.13 venv (not host default 3.14) for asyncpg/psycopg wheel compatibility
 - [Phase ?]: 01-01: Report.detections relationship deferred to Plan 04 — SQLAlchemy resolves relationship() string refs at mapper-configuration time, not import time, so a TYPE_CHECKING guard alone is insufficient before Detection exists
+- [Phase ?]: 01-02: sqlalchemy.dialects.postgresql.ENUM (not generic sa.Enum) required for create_type=False to actually suppress a second CREATE TYPE in migrations
+- [Phase ?]: 01-02: report_status_enum needs values_callable so Postgres stores D-06's lowercase enum values, not uppercase Python enum member names
 
 ### Pending Todos
 
@@ -92,6 +95,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-22T13:42:37.372Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-09-22T13:56:46.353Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
