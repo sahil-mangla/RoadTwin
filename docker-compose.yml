@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: roadtwin-postgres
+    environment:
+      POSTGRES_USER: roadtwin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-roadtwin_dev}
+      POSTGRES_DB: roadtwin
+    ports:
+      - "5432:5432"
+    volumes:
+      - roadtwin_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U roadtwin -d roadtwin"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  roadtwin_pgdata:
