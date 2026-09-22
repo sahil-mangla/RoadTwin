@@ -1,3 +1,5 @@
+import { SkeletonPage } from "./pages/SkeletonPage";
+
 function App() {
   return (
     <div className="page-container">
@@ -10,6 +12,7 @@ function App() {
           that ships in a later phase with image upload and a map.
         </p>
       </header>
+      <SkeletonPage />
     </div>
   );
 }
