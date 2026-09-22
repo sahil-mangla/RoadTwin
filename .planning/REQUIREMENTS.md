@@ -9,10 +9,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Schema (SCHM)
 
-- [ ] **SCHM-01**: System persists Report, Detection, RoadSegment, RoadObservation, RoadHealth, Prediction, and MaintenanceRecommendation as distinct, related entities
+- [x] **SCHM-01**: System persists Report, Detection, RoadSegment, RoadObservation, RoadHealth, Prediction, and MaintenanceRecommendation as distinct, related entities
 - [ ] **SCHM-02**: RoadObservation, RoadHealth, and Prediction are append-only time-series records (never mutated in place), so deterioration/forecast can be computed from history
-- [ ] **SCHM-03**: Report and Detection carry a status lifecycle (e.g. unverified → corroborated → evidence-confirmed) rather than being treated as confirmed fact on arrival
-- [ ] **SCHM-04**: Report captures GPS accuracy/error-radius metadata alongside latitude/longitude, not just a bare coordinate pair
+- [x] **SCHM-03**: Report and Detection carry a status lifecycle (e.g. unverified → corroborated → evidence-confirmed) rather than being treated as confirmed fact on arrival
+- [x] **SCHM-04**: Report captures GPS accuracy/error-radius metadata alongside latitude/longitude, not just a bare coordinate pair
 
 ### Ingestion (INGT)
 
@@ -117,10 +117,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCHM-01 | Phase 1 | Pending |
+| SCHM-01 | Phase 1 | Complete |
 | SCHM-02 | Phase 1 | Pending |
-| SCHM-03 | Phase 1 | Pending |
-| SCHM-04 | Phase 1 | Pending |
+| SCHM-03 | Phase 1 | Complete |
+| SCHM-04 | Phase 1 | Complete |
 | INGT-01 | Phase 2 | Pending |
 | INGT-02 | Phase 2 | Pending |
 | INGT-03 | Phase 2 | Pending |
@@ -157,6 +157,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RPWF-02 | Phase 7 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 38 total
 - Mapped to phases: 38 (confirmed by roadmapper)
 - Unmapped: 0
