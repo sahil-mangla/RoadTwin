@@ -12,7 +12,7 @@ YOLO detects what is visible; RoadTwin determines what the road's condition mean
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Data model implements Report, Detection, RoadSegment, RoadObservation, RoadHealth, Prediction, and MaintenanceRecommendation as distinct, related entities, with append-only time-series semantics (RoadObservation/RoadHealth/Prediction), a status lifecycle on Report/Detection, and GPS accuracy alongside lat/long — Validated in Phase 1: Schema & Core Data Contracts (SCHM-01..04)
 
 ### Active
 
@@ -32,7 +32,6 @@ YOLO detects what is visible; RoadTwin determines what the road's condition mean
 - [ ] Public map shows road health, damage clusters, reports, and trends
 - [ ] Authority dashboard shows network overview, road health map, ranked priority queue, road detail (history/composition/evidence/forecast), and per-road explainability
 - [ ] Admin/repair workflow: report status transitions and repair tracking (retained from MVP baseline)
-- [ ] Data model implements Report, Detection, RoadSegment, RoadObservation, RoadHealth, Prediction, and MaintenanceRecommendation as distinct, related entities
 
 ### Out of Scope
 
@@ -88,4 +87,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-22 after initialization*
+*Last updated: 2026-09-22 after Phase 1: Schema & Core Data Contracts*
