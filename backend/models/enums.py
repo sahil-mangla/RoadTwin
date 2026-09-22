@@ -24,4 +24,16 @@ class ReportStatus(str, enum.Enum):
 # One shared Postgres enum type, referenced by both `report.status` and
 # `detection.status` (Plan 04) -- so Postgres gets exactly one enum type
 # and Alembic emits exactly one `CREATE TYPE`, per 01-RESEARCH.md Pattern 3.
-report_status_enum = sa.Enum(ReportStatus, name="report_status", metadata=Base.metadata)
+#
+# `values_callable` is mandatory here: SQLAlchemy's `sa.Enum` defaults to
+# persisting a stdlib Enum member's *name* (e.g. "UNVERIFIED"), not its
+# `.value` -- without this override the live Postgres enum labels would be
+# uppercase member names, contradicting D-06's locked lowercase value set
+# (`unverified`, `corroborated`, `evidence_confirmed`, `rejected`) and this
+# phase's own migration acceptance criteria.
+report_status_enum = sa.Enum(
+    ReportStatus,
+    name="report_status",
+    metadata=Base.metadata,
+    values_callable=lambda enum_cls: [member.value for member in enum_cls],
+)
