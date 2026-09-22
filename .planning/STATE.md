@@ -4,16 +4,16 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 01
 current_phase_name: Schema & Core Data Contracts
-status: executing
-stopped_at: Completed 01-04-PLAN.md
-last_updated: "2026-09-22T14:21:17.218Z"
+status: verifying
+stopped_at: Completed 01-05-PLAN.md
+last_updated: "2026-09-22T14:33:03.746Z"
 last_activity: 2026-09-22
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-09-22)
 
 Phase: 01 (Schema & Core Data Contracts) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-22 — Phase 01 execution started
 
-Progress: [████████░░] 80%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [████████░░] 80%
 | Phase 01 P02 | 25min | 2 tasks | 16 files |
 | Phase 01 P03 | 12min | 2 tasks | 14 files |
 | Phase 01 P04 | 30min | 3 tasks | 14 files |
+| Phase 01 P05 | 40min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 01-03: Resolved unpinned frontend devDependency versions via npm view at execution time (typescript 7.0.2, @vitejs/plugin-react 6.1.1, @types/react(-dom) 19.3.0) rather than guessing
 - [Phase ?]: 01-04: None of the six new entities use TimestampedMixin -- only Report has created_at distinct from timestamp; the other six's own timestamp-shaped fields (observed_at/measured_at/generated_at) are the spec's actual columns
 - [Phase ?]: 01-04: Detection.status binds to the literal report_status_enum object (not a new sa.Enum instance) so Postgres carries exactly one report_status type across both migrations
+- [Phase ?]: 01-05: get_session's commit-on-clean-exit already gives the chain seed one transaction; no explicit session.commit() added
+- [Phase ?]: 01-05: DB-level enum enforcement proven by bypassing the ORM's Enum type with a raw parameterized UPDATE carrying a literal invalid value, not just relying on Python-side validation
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-22T14:21:17.214Z
-Stopped at: Completed 01-04-PLAN.md
+Last session: 2026-09-22T14:33:03.741Z
+Stopped at: Completed 01-05-PLAN.md
 Resume file: None
