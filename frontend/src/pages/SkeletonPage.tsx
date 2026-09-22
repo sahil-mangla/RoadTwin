@@ -67,12 +67,30 @@ export function SkeletonPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitting(true);
     setError(null);
+
+    // `noValidate` (below) disables the browser's own `required` check so that
+    // out-of-range values like latitude=91 reach the backend's 422 error path
+    // instead of being blocked client-side. That also means an empty field is
+    // no longer rejected here -- and `Number("")` is 0, a legal coordinate, so
+    // an empty submit would otherwise silently persist a report at (0, 0).
+    const parsedLatitude = Number(latitude);
+    const parsedLongitude = Number(longitude);
+    if (
+      latitude.trim() === "" ||
+      longitude.trim() === "" ||
+      !Number.isFinite(parsedLatitude) ||
+      !Number.isFinite(parsedLongitude)
+    ) {
+      setError("Latitude and longitude are required.");
+      return;
+    }
+
+    setSubmitting(true);
     try {
       const created = await createReport({
-        latitude: Number(latitude),
-        longitude: Number(longitude),
+        latitude: parsedLatitude,
+        longitude: parsedLongitude,
         gps_accuracy_meters: accuracy === "" ? null : Number(accuracy),
         description: description === "" ? null : description,
       });
