@@ -8,25 +8,29 @@ Phase 2 (INGT-02), so Phase 1 does not pre-empt it.
 """
 
 import datetime as dt
+from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from geoalchemy2 import Geometry, WKBElement
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampedMixin, UUIDPKMixin
 from .enums import ReportStatus, report_status_enum
 
-# NOTE: no `detections: Mapped[list["Detection"]] = relationship(...)` here
-# yet, even though 01-01-PLAN.md's Task 3 action describes adding one now
-# under `if TYPE_CHECKING:`. SQLAlchemy resolves relationship() string
-# class references at *mapper configuration* time (triggered by the first
-# instantiation or query against ANY mapped class in this registry), not
-# at *import* time -- a `TYPE_CHECKING` guard only protects the import, so
+if TYPE_CHECKING:
+    from .detection import Detection
+
+# NOTE on the `detections` relationship below: 01-01-PLAN.md's Task 3
+# action described adding it under a `TYPE_CHECKING` guard immediately,
+# but SQLAlchemy resolves relationship() string class references at
+# *mapper configuration* time (triggered by the first instantiation or
+# query against ANY mapped class in this registry), not at *import* time
+# -- a `TYPE_CHECKING` guard only protects the import statement above, so
 # a relationship pointing at "Detection" before `backend/models/detection.py`
-# exists raises `InvalidRequestError` on the very first `Report()` call,
-# breaking every test in this plan. Deviation (Rule 1 - bug): the
-# relationship is deferred to Plan 04, added alongside `Detection` itself,
-# where both sides of `back_populates` can resolve together.
+# existed would have raised `InvalidRequestError` on the very first
+# `Report()` call. 01-01-SUMMARY.md documented this as a deferred
+# deviation; this plan (04) is where `Detection` now exists, so both
+# sides of `back_populates` can resolve together.
 
 
 class Report(UUIDPKMixin, TimestampedMixin, Base):
@@ -66,6 +70,10 @@ class Report(UUIDPKMixin, TimestampedMixin, Base):
 
     status: Mapped[ReportStatus] = mapped_column(
         report_status_enum, default=ReportStatus.UNVERIFIED, nullable=False
+    )
+
+    detections: Mapped[list["Detection"]] = relationship(
+        back_populates="report", lazy="selectin"
     )
 
     def __init__(self, **kwargs):
