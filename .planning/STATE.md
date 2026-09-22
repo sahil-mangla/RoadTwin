@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Schema & Core Data Contracts
 status: executing
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-09-22T13:56:46.357Z"
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-09-22T14:10:49.251Z"
 last_activity: 2026-09-22
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-09-22)
 ## Current Position
 
 Phase: 01 (Schema & Core Data Contracts) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-09-22 — Phase 01 execution started
 
-Progress: [████░░░░░░] 40%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [████░░░░░░] 40%
 |------|----------|-------|-------|
 | Phase 01 P01 | 20min | 3 tasks | 21 files |
 | Phase 01 P02 | 25min | 2 tasks | 16 files |
+| Phase 01 P03 | 12min | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 01-01: Report.detections relationship deferred to Plan 04 — SQLAlchemy resolves relationship() string refs at mapper-configuration time, not import time, so a TYPE_CHECKING guard alone is insufficient before Detection exists
 - [Phase ?]: 01-02: sqlalchemy.dialects.postgresql.ENUM (not generic sa.Enum) required for create_type=False to actually suppress a second CREATE TYPE in migrations
 - [Phase ?]: 01-02: report_status_enum needs values_callable so Postgres stores D-06's lowercase enum values, not uppercase Python enum member names
+- [Phase ?]: 01-03: Added noValidate to the report form so HTML min/max attributes stay a convenience hint only -- server-side ReportCreate validation is the sole authority, exposing the 422 error in the UI as the threat model requires
+- [Phase ?]: 01-03: Resolved unpinned frontend devDependency versions via npm view at execution time (typescript 7.0.2, @vitejs/plugin-react 6.1.1, @types/react(-dom) 19.3.0) rather than guessing
 
 ### Pending Todos
 
@@ -95,6 +98,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-22T13:56:46.353Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-09-22T14:10:49.247Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None
