@@ -58,7 +58,15 @@ Plans:
   3. Repeated rapid submissions from the same identity/IP are throttled or rejected once a configured rate limit is exceeded.
   4. Uploaded images are retrievable from object storage via a reference stored on the Report record.
 
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+
+- [ ] 02-01-PLAN.md — MinIO object storage up, four audited dependencies pinned, Settings extended with every ingestion knob, test skip-guard registered
+- [ ] 02-02-PLAN.md — Slice A: a citizen's photo + coordinates become a durable Report whose image is retrievable via a short-lived presigned URL
+- [ ] 02-03-PLAN.md — Slice B: revision 0003 applied, and every submission attributed to a signed HttpOnly device identity
+- [ ] 02-04-PLAN.md — Slice C: dual-key rolling-window limiter plus a metre-accurate GPS cooldown, rejecting with 429 and Retry-After
+- [ ] 02-05-PLAN.md — Slice D: the citizen browser page — Leaflet confirm-or-drag pin, multipart upload, recorded-confirmation
+- [ ] 02-06-PLAN.md — Slice E: EXIF GPS as a confirmable candidate pin, verified format allow-list, tested attempt-table retention
 
 ### Phase 3: Async Perception Pipeline
 
@@ -144,7 +152,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Schema & Core Data Contracts | 5/5 | Complete    | 2026-09-22 |
-| 2. Ingestion, Citizen Identity & Rate Limiting | 0/TBD | Not started | - |
+| 2. Ingestion, Citizen Identity & Rate Limiting | 0/6 | Planned | - |
 | 3. Async Perception Pipeline | 0/TBD | Not started | - |
 | 4. Spatial Clustering & Segment Identity | 0/TBD | Not started | - |
 | 5. Evidence Fusion & Longitudinal Observations | 0/TBD | Not started | - |
