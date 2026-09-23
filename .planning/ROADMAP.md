@@ -60,12 +60,25 @@ Plans:
 
 **Plans**: 6 plans
 Plans:
+**Wave 1**
 
 - [ ] 02-01-PLAN.md — MinIO object storage up, four audited dependencies pinned, Settings extended with every ingestion knob, test skip-guard registered
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02-02-PLAN.md — Slice A: a citizen's photo + coordinates become a durable Report whose image is retrievable via a short-lived presigned URL
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 02-03-PLAN.md — Slice B: revision 0003 applied, and every submission attributed to a signed HttpOnly device identity
-- [ ] 02-04-PLAN.md — Slice C: dual-key rolling-window limiter plus a metre-accurate GPS cooldown, rejecting with 429 and Retry-After
 - [ ] 02-05-PLAN.md — Slice D: the citizen browser page — Leaflet confirm-or-drag pin, multipart upload, recorded-confirmation
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 02-04-PLAN.md — Slice C: dual-key rolling-window limiter plus a metre-accurate GPS cooldown, rejecting with 429 and Retry-After
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 02-06-PLAN.md — Slice E: EXIF GPS as a confirmable candidate pin, verified format allow-list, tested attempt-table retention
 
 ### Phase 3: Async Perception Pipeline
