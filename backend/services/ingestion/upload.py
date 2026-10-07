@@ -235,3 +235,14 @@ def get_presigned_image_url(object_key: str) -> str:
         object_key,
         expires=dt.timedelta(seconds=settings.minio_presigned_url_ttl_seconds),
     )
+
+
+def get_report_image_bytes(object_key: str) -> bytes:
+    """Reads a stored report image back out of MinIO (used by the perception worker)."""
+    client = get_minio_client()
+    response = client.get_object(settings.minio_bucket, object_key)
+    try:
+        return response.read()
+    finally:
+        response.close()
+        response.release_conn()

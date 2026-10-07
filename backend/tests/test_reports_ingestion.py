@@ -154,3 +154,20 @@ async def test_concurrent_submissions_each_create_independent_rows(
 async def test_image_url_404_for_unknown_report(client):
     response = await client.get(f"/api/reports/{uuid.uuid4()}/image-url")
     assert response.status_code == 404
+
+
+@pytest.mark.postgis
+@pytest.mark.minio
+@pytest.mark.asyncio
+async def test_submit_enqueues_perception_without_running_it(
+    client, session, jpeg_bytes, _no_real_enqueue
+):
+    response = await _post_report(client, jpeg_bytes)
+    assert response.status_code == 201, response.text
+    body = response.json()
+    assert body["perception_status"] == "pending"
+    assert _no_real_enqueue == [uuid.UUID(body["id"])]
+
+    detections = await client.get(f"/api/reports/{body['id']}/detections")
+    assert detections.status_code == 200
+    assert detections.json() == []

@@ -28,6 +28,8 @@ from backend.db.session import get_session
 from backend.schemas.report import ExifGpsCandidate, ReportCreate, ReportImageUrl, ReportRead
 from backend.services.ingestion.identity import get_device_identity
 from backend.services.ingestion.rate_limit import enforce_rate_limits, record_submission_attempt
+from backend.schemas.entities import DetectionRead
+from backend.services.perception.queue import enqueue_perception
 from backend.services.ingestion.upload import (
     extract_exif_gps,
     generate_object_key,
@@ -159,7 +161,23 @@ async def submit_report(
     # reaching here) never records an attempt at all.
     await record_submission_attempt(session, identity_key=device_id, ip_address=client_ip)
 
+    # Fire-and-forget: inference runs in the arq worker, never in this
+    # request. The deferred job gives the commit above time to land; a
+    # failed enqueue leaves the Report `pending` and does not fail the
+    # submission.
+    await enqueue_perception(report_id)
+
     return ReportRead.model_validate(report)
+
+
+@router.get("/{report_id}/detections", response_model=list[DetectionRead])
+async def list_report_detections(
+    report_id: uuid.UUID, session: AsyncSession = Depends(get_session)
+) -> list[DetectionRead]:
+    report = await ReportRepository(session).get(report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="report not found")
+    return [DetectionRead.model_validate(d) for d in report.detections]
 
 
 @router.get("/{report_id}/image-url", response_model=ReportImageUrl)

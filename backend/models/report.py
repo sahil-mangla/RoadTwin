@@ -86,6 +86,12 @@ class Report(UUIDPKMixin, TimestampedMixin, Base):
         report_status_enum, default=ReportStatus.UNVERIFIED, nullable=False
     )
 
+    # Background-inference lifecycle (PERC-01), separate from the
+    # verification `status` above: pending -> processing -> done | failed.
+    perception_status: Mapped[str] = mapped_column(
+        sa.String(16), default="pending", server_default="pending", nullable=False
+    )
+
     detections: Mapped[list["Detection"]] = relationship(
         back_populates="report", lazy="selectin"
     )

@@ -12,3 +12,4 @@ minio>=7.2.20,<7.3
 Pillow>=12.3.0,<13.0
 itsdangerous>=2.2.0,<3.0
 python-multipart>=0.0.32,<0.1
+arq>=0.28,<0.29

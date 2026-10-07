@@ -66,6 +66,18 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 10485760
     gps_imprecise_threshold_meters: float = 50.0
 
+    # -- Async perception pipeline (PERC-01..03) --
+    redis_url: str = "redis://localhost:6379"
+    # Path to YOLOv8 weights trained on RDD2022. Unset means the worker
+    # fails fast at startup rather than silently running a COCO model.
+    yolo_weights_path: str | None = None
+    yolo_conf_threshold: float = 0.25
+    yolo_image_size: int = 640
+    perception_job_max_tries: int = 3
+    # Delay before the first attempt so the submitting request's
+    # transaction has committed by the time the worker looks the row up.
+    perception_enqueue_delay_seconds: int = 2
+
     model_config = SettingsConfigDict(
         env_file="backend/.env", env_file_encoding="utf-8", extra="ignore"
     )

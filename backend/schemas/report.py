@@ -38,6 +38,7 @@ class ReportRead(BaseModel):
     status: ReportStatus
     community_upvotes: int
     verification_score: float | None
+    perception_status: str
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

@@ -78,3 +78,14 @@ submission to a signed device-identity cookie (no account, no email), and
 protects against spam via rate limiting and a GPS-proximity cooldown. No
 perception (YOLO detection), clustering, evidence fusion, health scoring,
 forecasting, or priority scoring exists yet.
+
+## Perception worker (Phase 3)
+
+Inference runs in a background `arq` worker, never in the upload request.
+
+1. `docker compose up -d redis`
+2. `pip install -r backend/requirements-ml.txt` (install a torch build for your machine first).
+3. Download YOLOv8 weights trained on RDD2022 (e.g. from Kaggle) and set `YOLO_WEIGHTS_PATH=/path/to/best.pt` in `backend/.env`.
+4. `arq backend.worker.WorkerSettings` from the repo root.
+
+Without a worker running, submissions still succeed and stay `perception_status=pending`.

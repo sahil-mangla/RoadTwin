@@ -221,3 +221,16 @@ async def client_isolated_sessions(migrated_database):
 
     app.dependency_overrides.pop(get_session, None)
     await isolated_engine.dispose()
+
+
+@pytest.fixture(autouse=True)
+def _no_real_enqueue(monkeypatch):
+    """Keeps submission tests from touching Redis; perception tests override this."""
+    enqueued: list = []
+
+    async def _fake_enqueue(report_id):
+        enqueued.append(report_id)
+        return True
+
+    monkeypatch.setattr("backend.routes.reports.enqueue_perception", _fake_enqueue)
+    return enqueued

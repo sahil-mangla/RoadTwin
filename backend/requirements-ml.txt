@@ -1,0 +1,2 @@
+# Worker-only: YOLOv8 inference. Install a torch build for your target first.
+ultralytics>=8.4,<9
