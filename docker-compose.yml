@@ -16,5 +16,32 @@ services:
       timeout: 3s
       retries: 10
 
+  minio:
+    # MinIO stopped publishing free public images in Oct 2025 and archived
+    # its open-source repo in Feb 2026; the official minio/minio and
+    # quay.io/minio/minio images were pulled entirely (Sept 2026) and now
+    # return "repository does not exist" / require paid-registry auth.
+    # coollabsio/minio is a community-maintained drop-in replacement
+    # (Coolify's org, ~66k pulls) exposing the identical S3 API -- no
+    # application code depends on the image source, only on the S3
+    # protocol the `minio` Python SDK client speaks.
+    image: coollabsio/minio:latest
+    container_name: roadtwin-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-roadtwin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-roadtwin_dev_secret}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - roadtwin_minio_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
 volumes:
   roadtwin_pgdata:
+  roadtwin_minio_data:

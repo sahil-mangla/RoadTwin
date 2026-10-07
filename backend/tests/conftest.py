@@ -89,6 +89,33 @@ async def session(migrated_database, async_engine):
         await connection.close()
 
 
+@pytest.fixture(scope="session")
+def minio_available():
+    """A bucket-bootstrapped `minio.Minio` client, or a session skip.
+
+    Byte-for-byte the same skip-rather-than-error shape as `postgres_dsn`
+    above, so a developer without Docker running gets a clear skip instead
+    of a confusing connection error. `minio` is imported lazily inside the
+    fixture body (not at module scope) so test collection still works in
+    an environment where the package is absent.
+    """
+    import minio as minio_sdk
+
+    client = minio_sdk.Minio(
+        settings.minio_endpoint,
+        access_key=settings.minio_access_key,
+        secret_key=settings.minio_secret_key,
+        secure=settings.minio_secure,
+    )
+    try:
+        exists = client.bucket_exists(settings.minio_bucket)
+        if not exists:
+            client.make_bucket(settings.minio_bucket)
+    except Exception:
+        pytest.skip("docker-compose minio service not reachable")
+    return client
+
+
 @pytest_asyncio.fixture
 async def client(session):
     """An httpx.AsyncClient bound to the app through an ASGI transport.
@@ -119,3 +146,78 @@ async def client(session):
         yield ac
 
     app.dependency_overrides.pop(get_session, None)
+
+
+@pytest.fixture
+def jpeg_bytes() -> bytes:
+    """A small valid in-memory JPEG -- no fixture file on disk."""
+    import io
+
+    from PIL import Image
+
+    buf = io.BytesIO()
+    Image.new("RGB", (64, 64), (128, 128, 128)).save(buf, format="JPEG")
+    return buf.getvalue()
+
+
+@pytest.fixture
+def png_bytes() -> bytes:
+    """A small valid in-memory PNG -- no fixture file on disk."""
+    import io
+
+    from PIL import Image
+
+    buf = io.BytesIO()
+    Image.new("RGB", (64, 64), (128, 128, 128)).save(buf, format="PNG")
+    return buf.getvalue()
+
+
+@pytest_asyncio.fixture
+async def client_isolated_sessions(migrated_database):
+    """An httpx.AsyncClient where each request gets its own real DB session.
+
+    The `client` fixture above shares one `AsyncSession` on one connection
+    inside an outer transaction -- not safe under `asyncio.gather`, since a
+    single `AsyncSession` is not concurrency-safe. This fixture instead
+    builds a throwaway engine (own connection pool, `NullPool`) and session
+    factory scoped to this one test function, so concurrent requests each
+    get a real, independent connection and commit for real.
+
+    A fresh, function-scoped engine (rather than the app's shared
+    module-level `backend.db.session.engine`) is deliberate: pytest-asyncio
+    gives each test function its own event loop by default, and an
+    asyncpg connection created under one test's loop cannot be reused from
+    another test's loop -- reusing the app's long-lived pooled engine
+    across tests raised "Future attached to a different loop" once a
+    second test also exercised this fixture.
+
+    Because this fixture commits for real, every test that uses it is
+    responsible for deleting the rows it creates (in a `finally` block).
+    """
+    import httpx
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+    from sqlalchemy.pool import NullPool
+
+    from backend.db.session import get_session
+    from backend.main import app
+
+    isolated_engine = create_async_engine(settings.database_url, poolclass=NullPool)
+    isolated_session_factory = async_sessionmaker(isolated_engine, expire_on_commit=False)
+
+    async def _override_get_session():
+        async with isolated_session_factory() as real_session:
+            try:
+                yield real_session
+                await real_session.commit()
+            except Exception:
+                await real_session.rollback()
+                raise
+
+    app.dependency_overrides[get_session] = _override_get_session
+
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as ac:
+        yield ac
+
+    app.dependency_overrides.pop(get_session, None)
+    await isolated_engine.dispose()

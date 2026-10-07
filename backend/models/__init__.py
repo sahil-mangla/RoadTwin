@@ -4,6 +4,7 @@ from .base import Base
 from .detection import Detection
 from .maintenance_recommendation import MaintenanceRecommendation
 from .prediction import Prediction
+from .rate_limit import SubmissionAttempt
 from .report import Report
 from .road_health import RoadHealth
 from .road_observation import RoadObservation
@@ -18,4 +19,5 @@ __all__ = [
     "RoadHealth",
     "Prediction",
     "MaintenanceRecommendation",
+    "SubmissionAttempt",
 ]

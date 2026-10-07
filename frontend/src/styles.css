@@ -62,3 +62,46 @@ td {
   padding: 0.6rem;
   border-radius: 4px;
 }
+
+.map-container {
+  height: 320px;
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.location-readout {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0.4rem 0;
+}
+
+.advisory-banner {
+  background: #fff6e0;
+  border: 1px solid #f0c674;
+  padding: 0.5rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.confirmation-banner {
+  background: #e6f7e9;
+  border: 1px solid #7fd196;
+  padding: 0.6rem;
+  border-radius: 4px;
+}
+
+.main-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.main-nav button {
+  padding: 0.4rem 0.8rem;
+}
+
+.main-nav button.active {
+  background: #1a1a1a;
+  color: white;
+}

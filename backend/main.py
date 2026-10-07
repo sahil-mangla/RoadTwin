@@ -44,3 +44,18 @@ if settings.skeleton_routes_enabled:
         "for local development only. Set SKELETON_ROUTES_ENABLED=false "
         "outside local dev."
     )
+
+# The real citizen ingestion API (INGT-01..04, Phase 2) -- mounted
+# unconditionally, unlike the diagnostic skeleton router above.
+from backend.routes import reports  # noqa: E402
+
+app.include_router(reports.router)
+
+try:
+    from backend.services.ingestion.upload import ensure_bucket
+
+    ensure_bucket()
+except Exception:
+    # A MinIO outage must not prevent the app (or test collection, which
+    # imports backend.main) from starting (T-02-11).
+    logger.error("Could not reach the docker-compose minio service at startup")

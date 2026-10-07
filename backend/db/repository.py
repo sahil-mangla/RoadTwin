@@ -13,6 +13,7 @@ from backend.models.detection import Detection
 from backend.models.geo import make_linestring, make_point
 from backend.models.maintenance_recommendation import MaintenanceRecommendation
 from backend.models.prediction import Prediction
+from backend.models.rate_limit import SubmissionAttempt
 from backend.models.report import Report
 from backend.models.road_health import RoadHealth
 from backend.models.road_observation import RoadObservation
@@ -88,6 +89,17 @@ class ReportRepository(MutableRepository[Report]):
                 "location": make_point(kwargs["latitude"], kwargs["longitude"]),
             }
         return await super().create(**kwargs)
+
+
+class SubmissionAttemptRepository(BaseRepository[SubmissionAttempt]):
+    """Parent is `BaseRepository`, not `MutableRepository`.
+
+    02-RESEARCH.md's chosen design is append-and-count: one row per
+    accepted submission attempt, never updated after insert. No `update()`
+    is needed, and inheriting one would widen the surface for no reason.
+    """
+
+    model = SubmissionAttempt
 
 
 class DetectionRepository(MutableRepository[Detection]):

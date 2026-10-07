@@ -35,6 +35,49 @@ export interface Report {
   created_at: string;
 }
 
+// Mirrors backend/schemas/report.py's ReportImageUrl and ExifGpsCandidate.
+
+export interface ReportImageUrl {
+  url: string;
+  expiresInSeconds: number;
+}
+
+export interface ExifGpsCandidate {
+  latitude: number | null;
+  longitude: number | null;
+  source: string;
+}
+
+/** The single authoritative in-progress citizen submission draft. */
+export interface ReportSubmitDraft {
+  latitude: number | null;
+  longitude: number | null;
+  gpsAccuracyMeters: number | null;
+  description: string;
+  imageFile: File | null;
+}
+
+/**
+ * Pure validation -- exists only so the submit button cannot fire a request
+ * that cannot succeed. The server's Pydantic validation remains the sole
+ * authority (Phase 1 CR-01); this never replaces it.
+ */
+export function validateReportDraft(draft: ReportSubmitDraft): string | null {
+  if (draft.latitude === null || draft.longitude === null) {
+    return "Please confirm a location on the map before submitting.";
+  }
+  if (draft.latitude < -90 || draft.latitude > 90) {
+    return "Latitude must be between -90 and 90.";
+  }
+  if (draft.longitude < -180 || draft.longitude > 180) {
+    return "Longitude must be between -180 and 180.";
+  }
+  if (draft.imageFile === null) {
+    return "Please attach a photo of the road damage.";
+  }
+  return null;
+}
+
 // Mirrors backend/schemas/skeleton.py exactly.
 
 /** One row of a live per-entity row count from GET /api/skeleton/schema-status. */

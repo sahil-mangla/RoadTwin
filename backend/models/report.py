@@ -2,9 +2,10 @@
 
 Field list matches `.planning/reference/RoadTwin-Architecture-Input-Spec.md`
 §4.1 verbatim, plus the additive fields D-05 (UUID PK), D-07 (GPS accuracy)
-and CONTEXT.md's Claude's-Discretion geometry column authorise. No
-citizen-identity foreign key is added here -- that decision belongs to
-Phase 2 (INGT-02), so Phase 1 does not pre-empt it.
+and CONTEXT.md's Claude's-Discretion geometry column authorise. Phase 2
+resolved citizen identity (INGT-02) as an opaque signed-cookie device
+identifier (D-01) -- deliberately NOT a foreign key to any user table,
+because no user table exists and D-02 rules out building one.
 """
 
 import datetime as dt
@@ -38,7 +39,20 @@ class Report(UUIDPKMixin, TimestampedMixin, Base):
 
     # Nullable because image upload is INGT-01/INGT-04 (Phase 2); Phase 2
     # owns this column's population and decides its final nullability.
-    image_path: Mapped[str | None] = mapped_column(nullable=True)
+    # Narrowed to String(256) here -- the length half of D-08 / 01-REVIEW.md
+    # WR-02 that the Pydantic layer (ReportCreate.image_path) also enforces.
+    image_path: Mapped[str | None] = mapped_column(sa.String(256), nullable=True)
+
+    # Opaque signed-cookie device identifier (D-01, INGT-02). Nullable
+    # because Phase 1 rows and the skeleton route create Reports with no
+    # identity; the citizen route (backend/routes/reports.py) always
+    # populates it. Not a verified person -- clearable, shareable, and not
+    # bound to any credential -- so it supports rate limiting (Phase 2
+    # Plan 04) and one-corroboration-per-report (Phase 5 EVID-04), not
+    # non-repudiation.
+    submitter_identity_key: Mapped[str | None] = mapped_column(
+        sa.String(64), nullable=True, index=True
+    )
 
     latitude: Mapped[float] = mapped_column(nullable=False)
     longitude: Mapped[float] = mapped_column(nullable=False)

@@ -3,9 +3,31 @@
 Two separate database URLs are mandatory (01-RESEARCH.md Pitfall 3):
 `asyncpg` drives the FastAPI app's async engine; `psycopg` (sync) drives
 Alembic, which cannot run migrations through an async-only driver.
+
+Phase 2 (INGT-01..04) extends this single class with every MinIO,
+device-identity-cookie, rate-limit and upload-validation knob the
+ingestion path needs (D-13: one flat Settings class, no second config
+module). Every numeric value below is a CONTEXT.md Claude's-Discretion
+resolution, made an environment-tunable Settings field rather than a
+module constant so retuning it after launch needs no schema change:
+
+- `identity_rate_limit_per_hour=10` / `ip_rate_limit_per_hour=20` and
+  `gps_cooldown_meters=15.0` / `gps_cooldown_seconds=300` are
+  02-RESEARCH.md Pattern 2's proposed defaults, sized deliberately
+  small-radius/short-window (Pitfall 3) so the identity-agnostic cooldown
+  catches an obvious spam burst without plausibly blocking a second real
+  citizen photographing the same pothole minutes later.
+- `max_upload_bytes=10485760` (10 MB) is the upload cap.
+- `gps_imprecise_threshold_meters=50.0` is the non-blocking "location may
+  be imprecise" hint threshold from D-11.
 """
 
+import logging
+import secrets
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -13,9 +35,61 @@ class Settings(BaseSettings):
     database_url_sync: str = "postgresql+psycopg://roadtwin:roadtwin_dev@localhost:5432/roadtwin"
     skeleton_routes_enabled: bool = True
 
+    # -- MinIO object storage (INGT-04) --
+    minio_endpoint: str = "localhost:9000"
+    minio_access_key: str = "roadtwin"
+    minio_secret_key: str = "roadtwin_dev_secret"
+    minio_secure: bool = False
+    minio_bucket: str = "roadtwin-reports"
+    minio_presigned_url_ttl_seconds: int = 900
+
+    # -- Device identity cookie (INGT-02, D-01/D-02) --
+    device_id_cookie_name: str = "rt_device_id"
+    device_id_cookie_max_age_seconds: int = 31536000
+    device_id_cookie_secure: bool = False
+    # No literal default (threat T-02-07): a hardcoded or shared signing
+    # secret would let anyone forge a signed device identity. `str | None`
+    # rather than a required `str` is deliberate -- a required field would
+    # make `Settings()` raise at import time and break every Phase 1 test
+    # that imports this module. See `resolve_device_id_cookie_secret()`.
+    device_id_cookie_secret: str | None = None
+
+    # -- Rate limiting & GPS cooldown (INGT-03, D-03..D-06) --
+    identity_rate_limit_per_hour: int = 10
+    ip_rate_limit_per_hour: int = 20
+    rate_limit_window_seconds: int = 3600
+    gps_cooldown_meters: float = 15.0
+    gps_cooldown_seconds: int = 300
+    submission_attempt_retention_days: int = 7
+
+    # -- Upload validation (INGT-04, D-11) --
+    max_upload_bytes: int = 10485760
+    gps_imprecise_threshold_meters: float = 50.0
+
     model_config = SettingsConfigDict(
         env_file="backend/.env", env_file_encoding="utf-8", extra="ignore"
     )
 
 
 settings = Settings()
+
+
+def resolve_device_id_cookie_secret() -> str:
+    """Returns the configured cookie-signing secret, or mints an ephemeral one.
+
+    When `DEVICE_ID_COOKIE_SECRET` is unset, a per-process secret is minted
+    with `secrets.token_urlsafe(32)` and a loud warning is emitted, per
+    02-RESEARCH.md Pitfall 4: a signing secret with a public/shared default
+    provides zero security. The consequence -- every process restart
+    invalidates every outstanding cookie and therefore every device
+    identity -- is accepted, loud-failure behaviour, not a bug.
+    """
+    if settings.device_id_cookie_secret:
+        return settings.device_id_cookie_secret
+    logger.warning(
+        "DEVICE_ID_COOKIE_SECRET is not set -- minting an ephemeral "
+        "per-process signing secret. Device identities will NOT survive "
+        "a process restart. Set DEVICE_ID_COOKIE_SECRET in backend/.env "
+        "outside local dev."
+    )
+    return secrets.token_urlsafe(32)
