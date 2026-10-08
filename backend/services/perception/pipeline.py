@@ -12,7 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.db.repository import DetectionRepository, ReportRepository
 from backend.models.detection import Detection
 from backend.services.perception.detector import Detector
-from backend.services.perception.severity import bbox_area_ratio, derive_severity
+from backend.services.perception.severity import (
+    bbox_area_ratio,
+    canonical_damage_type,
+    derive_severity,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,16 +47,17 @@ async def process_report(
     detections = DetectionRepository(session)
     for raw in result.detections:
         ratio = bbox_area_ratio(raw.x1, raw.y1, raw.x2, raw.y2, result.width, result.height)
+        damage_type = canonical_damage_type(raw.damage_type)
         await detections.create(
             report_id=report_id,
-            damage_type=raw.damage_type,
+            damage_type=damage_type,
             confidence=raw.confidence,
             bbox_x1=raw.x1,
             bbox_y1=raw.y1,
             bbox_x2=raw.x2,
             bbox_y2=raw.y2,
             bbox_area_ratio=ratio,
-            severity=derive_severity(raw.damage_type, ratio),
+            severity=derive_severity(damage_type, ratio),
         )
 
     await reports.update(report, perception_status="done")

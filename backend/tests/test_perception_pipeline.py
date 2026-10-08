@@ -63,3 +63,12 @@ async def test_retry_does_not_duplicate_detections(session, jpeg_bytes):
 async def test_missing_report_raises_for_retry(session, jpeg_bytes):
     with pytest.raises(ReportNotFound):
         await process_report(session, uuid.uuid4(), jpeg_bytes, StubDetector())
+
+
+@pytest.mark.postgis
+async def test_word_class_names_stored_as_codes(session, jpeg_bytes):
+    report = await _make_report(session)
+    detector = StubDetector([RawDetection("Potholes", 0.8, 0, 0, 50, 50)])
+    await process_report(session, report.id, jpeg_bytes, detector)
+    row = await session.scalar(sa.select(Detection).where(Detection.report_id == report.id))
+    assert row.damage_type == "D40"

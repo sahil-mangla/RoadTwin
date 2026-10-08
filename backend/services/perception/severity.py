@@ -19,6 +19,21 @@ DAMAGE_TYPE_MULTIPLIER: dict[str, float] = {
 }
 DEFAULT_MULTIPLIER = 2.0
 
+# Some RDD2022 checkpoints name their classes in words instead of codes.
+# Detections are stored under the canonical code either way.
+CLASS_NAME_TO_CODE: dict[str, str] = {
+    "longitudinal crack": "D00",
+    "transverse crack": "D10",
+    "alligator crack": "D20",
+    "pothole": "D40",
+    "potholes": "D40",
+}
+
+
+def canonical_damage_type(name: str) -> str:
+    """Maps a model class name to its RDD2022 code; unknown names pass through."""
+    return CLASS_NAME_TO_CODE.get(name.strip().lower(), name)
+
 # Upper edges (exclusive) of the effective-area bands, ascending.
 SEVERITY_BANDS: tuple[tuple[float, str], ...] = (
     (0.02, "low"),

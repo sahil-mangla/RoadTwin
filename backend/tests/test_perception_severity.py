@@ -2,7 +2,7 @@
 
 import pytest
 
-from backend.services.perception.severity import bbox_area_ratio, derive_severity
+from backend.services.perception.severity import bbox_area_ratio, canonical_damage_type, derive_severity
 
 
 def test_area_ratio_is_fraction_of_image():
@@ -38,3 +38,12 @@ def test_severity_signature_has_no_confidence_input():
     import inspect
 
     assert list(inspect.signature(derive_severity).parameters) == ["damage_type", "area_ratio"]
+
+
+@pytest.mark.parametrize(
+    "name,code",
+    [("Longitudinal Crack", "D00"), ("Transverse Crack", "D10"), ("Alligator Crack", "D20"),
+     ("Potholes", "D40"), ("D20", "D20"), ("mystery", "mystery")],
+)
+def test_canonical_damage_type(name, code):
+    assert canonical_damage_type(name) == code
