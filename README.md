@@ -89,3 +89,20 @@ Inference runs in a background `arq` worker, never in the upload request.
 4. `arq backend.worker.WorkerSettings` from the repo root.
 
 Without a worker running, submissions still succeed and stay `perception_status=pending`.
+
+## Dashboards (Phase 7)
+
+The frontend (`npm run dev` in `frontend/`, then http://localhost:5173) has four pages:
+
+- `#/report`: citizens submit damage, and see repair updates on their own reports.
+- `#/map`: public, read-only road health map (no login).
+- `#/authority`: staff dashboard with the overview, health map, ranked priority queue, per-road detail with priority explanation, and repair workflow.
+- `#/diagnostic`: the Phase 1 internal diagnostic.
+
+Create a staff account (there is no public sign-up). The password is prompted for, minimum 12 characters:
+
+```
+.venv/bin/python -m backend.scripts.create_staff you@city.gov
+```
+
+Set `STAFF_SESSION_SECRET` (and `DEVICE_ID_COOKIE_SECRET`) in `backend/.env` so sessions survive restarts. All health and priority scores are provisional, tunable estimates, and the UI labels them as such.

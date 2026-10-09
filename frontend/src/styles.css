@@ -105,3 +105,246 @@ td {
   background: #1a1a1a;
   color: white;
 }
+
+/* --- Phase 7: map, dashboard, notifications --- */
+.page-container.wide {
+  max-width: 1180px;
+}
+
+.main-nav a {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: inherit;
+  text-decoration: none;
+  background: white;
+}
+
+.main-nav a.active {
+  background: #1a1a1a;
+  color: white;
+  border-color: #1a1a1a;
+}
+
+.main-nav {
+  flex-wrap: wrap;
+}
+
+.provisional-note {
+  background: #fff6e0;
+  border-left: 4px solid #e6b800;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.intel-map {
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+}
+
+.band-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  font-size: 0.8rem;
+  margin: 0.4rem 0;
+}
+
+.band-legend i {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+.band-badge {
+  display: inline-block;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  color: #111;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.band-badge.no-data {
+  background: #e0e0e0;
+}
+
+.panel {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.muted {
+  color: #666;
+}
+
+.small {
+  font-size: 0.82rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.card.bad {
+  border-left: 4px solid #d73027;
+}
+
+.card.warn {
+  border-left: 4px solid #fc8d59;
+}
+
+.card-title {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.card-value {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+table.queue tbody tr {
+  cursor: pointer;
+}
+
+table.queue tbody tr:hover,
+table.queue tr.selected {
+  background: #f0f4ff;
+}
+
+table.compact th,
+table.compact td {
+  padding: 0.25rem 0.4rem;
+  font-size: 0.85rem;
+}
+
+.urgency {
+  padding: 0.05rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.urgency.immediate {
+  background: #d73027;
+  color: white;
+}
+
+.urgency.high {
+  background: #fc8d59;
+}
+
+.urgency.medium {
+  background: #fee08b;
+}
+
+.urgency.low {
+  background: #e0e0e0;
+}
+
+.bar {
+  display: inline-block;
+  height: 0.6rem;
+  background: #4a6fd1;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.sparkline polyline {
+  fill: none;
+  stroke: #4a6fd1;
+  stroke-width: 2;
+}
+
+.sparkline circle {
+  fill: #4a6fd1;
+}
+
+.sparkline .threshold {
+  stroke: #d73027;
+  stroke-dasharray: 4 3;
+  stroke-width: 1;
+}
+
+.repair-controls,
+.inputs-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-end;
+  margin: 0.5rem 0;
+}
+
+.inputs-form label {
+  min-width: 160px;
+}
+
+button.link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #2a5bd7;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.notifications {
+  background: #eef4ff;
+  border: 1px solid #b8ccf5;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.notifications ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.notifications li.read {
+  color: #777;
+}
+
+.login {
+  max-width: 380px;
+}
+
+@media (max-width: 640px) {
+  table.queue th:nth-child(n + 6),
+  table.queue td:nth-child(n + 6) {
+    display: none;
+  }
+}
