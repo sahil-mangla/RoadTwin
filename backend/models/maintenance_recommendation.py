@@ -12,6 +12,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, UUIDPKMixin
@@ -38,5 +39,7 @@ class MaintenanceRecommendation(UUIDPKMixin, Base):
     # PRIO-02 requires an explanation alongside every score -- required,
     # not optional.
     explanation: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    # Phase 7: per-factor values, weights and contributions behind the score.
+    components: Mapped[dict | None] = mapped_column(postgresql.JSONB, nullable=True)
 
     segment: Mapped["RoadSegment"] = relationship(back_populates="recommendations")

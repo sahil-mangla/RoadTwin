@@ -232,5 +232,11 @@ def _no_real_enqueue(monkeypatch):
         enqueued.append(report_id)
         return True
 
+    async def _fake_segmentation():
+        return True
+
     monkeypatch.setattr("backend.routes.reports.enqueue_perception", _fake_enqueue)
+    # Tests must never push jobs onto a real Redis queue a dev worker reads.
+    monkeypatch.setattr("backend.routes.reports.enqueue_segmentation", _fake_segmentation)
+    monkeypatch.setattr("backend.routes.authority.enqueue_segmentation", _fake_segmentation)
     return enqueued

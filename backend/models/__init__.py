@@ -1,5 +1,6 @@
 """Re-exports Base + models so Alembic's `target_metadata` sees the full schema."""
 
+from .authority import CitizenNotification, RepairEvent, StaffUser
 from .base import Base
 from .corroboration import ReportCorroboration
 from .detection import Detection
@@ -24,4 +25,7 @@ __all__ = [
     "SubmissionAttempt",
     "ReportCorroboration",
     "ForecastEvaluation",
+    "StaffUser",
+    "RepairEvent",
+    "CitizenNotification",
 ]

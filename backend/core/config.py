@@ -145,6 +145,33 @@ class Settings(BaseSettings):
     forecast_failure_health_threshold: float = 40.0
     forecast_accuracy_tolerance_days: float = 7.0
 
+    # -- Maintenance priority (PRIO-01..03) -- PROVISIONAL, tunable --
+    # Relative weights; a factor with no data is left out and the rest are
+    # renormalised, so optional external inputs are never required.
+    priority_weight_severity: float = 0.30
+    priority_weight_deterioration: float = 0.20
+    priority_weight_density: float = 0.15
+    priority_weight_evidence: float = 0.10
+    priority_weight_traffic: float = 0.10
+    priority_weight_importance: float = 0.05
+    priority_weight_vulnerable: float = 0.05
+    priority_weight_repair_recency: float = 0.05
+    # Decline (health points/day) treated as maximal deterioration.
+    priority_deterioration_saturation_per_day: float = 1.0
+    # Days since repair at which the repair-recency factor reaches 1.
+    priority_repair_recency_saturation_days: float = 365.0
+    # A new recommendation row is appended when the score moves this much.
+    priority_resnapshot_delta: float = 1.0
+
+    # -- Authority staff sessions (AUTH-01/02) --
+    staff_session_cookie_name: str = "rt_staff_session"
+    staff_session_max_age_seconds: int = 28800  # 8 hours
+    staff_session_cookie_secure: bool = False
+    # No literal default, for the same reason as device_id_cookie_secret.
+    staff_session_secret: str | None = None
+    staff_login_max_failures: int = 5
+    staff_login_window_seconds: int = 900
+
     model_config = SettingsConfigDict(
         env_file="backend/.env", env_file_encoding="utf-8", extra="ignore"
     )

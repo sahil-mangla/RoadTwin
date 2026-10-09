@@ -99,8 +99,17 @@ async def assess_segments(session: AsyncSession, now: dt.datetime | None = None)
     health_records = prediction_count = 0
 
     for segment in segments:
-        result = compute_health(damages.get(segment.id, []), segment.length_meters, now, settings)
-        past = history.get(segment.id, [])
+        repaired = segment.last_repaired_at
+        # After a repair, only damage seen since then counts, and the trend
+        # and forecast restart from post-repair measurements.
+        current = [
+            d for d in damages.get(segment.id, [])
+            if repaired is None or d.first_observed_at > repaired
+        ]
+        result = compute_health(current, segment.length_meters, now, settings)
+        past = [
+            r for r in history.get(segment.id, []) if repaired is None or r.measured_at >= repaired
+        ]
         segment.current_health_score = result.score
         segment.last_observed_at = last_seen.get(segment.id)
 

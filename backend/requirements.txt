@@ -16,3 +16,4 @@ arq>=0.28,<0.29
 scikit-learn>=1.9,<2
 numpy>=2.0
 statsmodels>=0.15,<0.16
+argon2-cffi>=25.1,<26

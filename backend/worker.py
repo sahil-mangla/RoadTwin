@@ -18,6 +18,7 @@ from backend.services.perception.pipeline import ReportNotFound, process_report
 from backend.services.perception.queue import enqueue_segmentation
 from backend.services.intelligence.assessment import assess_segments
 from backend.services.intelligence.observations import record_observations
+from backend.services.maintenance.prioritize import prioritize_segments
 from backend.services.spatial.segmentation import run_segmentation
 
 logger = logging.getLogger(__name__)
@@ -65,8 +66,14 @@ async def run_segmentation_job(ctx: dict) -> dict:
         segmentation = await run_segmentation(session)
         observations = await record_observations(session)
         assessment = await assess_segments(session)
+        priority = await prioritize_segments(session)
         await session.commit()
-    return {**segmentation.__dict__, **observations.__dict__, **assessment.__dict__}
+    return {
+        **segmentation.__dict__,
+        **observations.__dict__,
+        **assessment.__dict__,
+        **priority.__dict__,
+    }
 
 
 async def _image_path(session, report_id: uuid.UUID) -> str:

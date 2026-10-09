@@ -63,6 +63,21 @@ class RoadSegment(UUIDPKMixin, Base):
         sa.DateTime(timezone=True), nullable=True
     )
 
+    # -- Phase 7: repair workflow (RPWF-01) --
+    # none -> received -> in_progress -> resolved (resolved can be reopened).
+    repair_status: Mapped[str] = mapped_column(
+        sa.String(16), default="none", server_default="none", nullable=False
+    )
+    # Damage observed before this moment no longer counts toward health.
+    last_repaired_at: Mapped[dt.datetime | None] = mapped_column(
+        sa.DateTime(timezone=True), nullable=True
+    )
+
+    # -- Phase 7: optional enhancement inputs to priority (PRIO-01) --
+    # Never required: a missing input is left out of the priority score.
+    traffic_exposure: Mapped[float | None] = mapped_column(nullable=True)  # 0..1
+    near_vulnerable_location: Mapped[bool | None] = mapped_column(nullable=True)
+
     observations: Mapped[list["RoadObservation"]] = relationship(
         back_populates="segment", lazy="selectin"
     )
