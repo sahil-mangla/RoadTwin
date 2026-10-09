@@ -46,3 +46,21 @@ async def enqueue_perception(report_id: uuid.UUID) -> bool:
     except Exception:
         logger.exception("Could not enqueue perception job for report %s", report_id)
         return False
+
+
+SEGMENTATION_JOB = "run_segmentation_job"
+
+
+async def enqueue_segmentation() -> bool:
+    """Debounced: a fixed job id collapses a burst of triggers into one run."""
+    try:
+        pool = await get_pool()
+        await pool.enqueue_job(
+            SEGMENTATION_JOB,
+            _job_id="segmentation",
+            _defer_by=timedelta(seconds=settings.segmentation_defer_seconds),
+        )
+        return True
+    except Exception:
+        logger.exception("Could not enqueue segmentation job")
+        return False

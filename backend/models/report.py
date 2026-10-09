@@ -9,6 +9,7 @@ because no user table exists and D-02 rules out building one.
 """
 
 import datetime as dt
+import uuid
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -90,6 +91,17 @@ class Report(UUIDPKMixin, TimestampedMixin, Base):
     # verification `status` above: pending -> processing -> done | failed.
     perception_status: Mapped[str] = mapped_column(
         sa.String(16), default="pending", server_default="pending", nullable=False
+    )
+
+    # Phase 4 (SPAT-01/02): set by the segmentation job. `duplicate_of_id`
+    # points at the canonical report for the same physical damage (NULL on
+    # the canonical itself); `segment_id` is the RoadSegment the report's
+    # canonical point was aggregated into.
+    duplicate_of_id: Mapped[uuid.UUID | None] = mapped_column(
+        sa.Uuid(as_uuid=True), sa.ForeignKey("report.id"), nullable=True, index=True
+    )
+    segment_id: Mapped[uuid.UUID | None] = mapped_column(
+        sa.Uuid(as_uuid=True), sa.ForeignKey("road_segment.id"), nullable=True, index=True
     )
 
     detections: Mapped[list["Detection"]] = relationship(

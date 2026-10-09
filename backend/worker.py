@@ -7,7 +7,7 @@ import asyncio
 import logging
 import uuid
 
-from arq import Retry
+from arq import Retry, cron
 from arq.connections import RedisSettings
 
 from backend.core.config import settings
@@ -15,7 +15,8 @@ from backend.db.session import async_session_factory
 from backend.services.ingestion.upload import get_report_image_bytes
 from backend.services.perception.detector import load_detector
 from backend.services.perception.pipeline import ReportNotFound, process_report
-from backend.services.perception.queue import PERCEPTION_JOB
+from backend.services.perception.queue import enqueue_segmentation
+from backend.services.spatial.segmentation import run_segmentation
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,8 @@ async def run_perception(ctx: dict, report_id: str) -> int:
                 image_bytes = await asyncio.to_thread(get_report_image_bytes, image_path)
                 count = await process_report(session, rid, image_bytes, ctx["detector"])
                 await session.commit()
+                if count:
+                    await enqueue_segmentation()
                 return count
             except Exception:
                 await session.rollback()
@@ -44,6 +47,13 @@ async def run_perception(ctx: dict, report_id: str) -> int:
         if ctx["job_try"] >= settings.perception_job_max_tries:
             await _mark_failed(rid)
         raise
+
+
+async def run_segmentation_job(ctx: dict) -> dict:
+    async with async_session_factory() as session:
+        summary = await run_segmentation(session)
+        await session.commit()
+    return summary.__dict__
 
 
 async def _image_path(session, report_id: uuid.UUID) -> str:
@@ -69,7 +79,9 @@ async def _mark_failed(report_id: uuid.UUID) -> None:
 
 
 class WorkerSettings:
-    functions = [run_perception]
+    functions = [run_perception, run_segmentation_job]
+    # Safety net in case a trigger was lost (e.g. Redis restart).
+    cron_jobs = [cron(run_segmentation_job, minute={0, 15, 30, 45}, unique=True)]
     on_startup = startup
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_tries = settings.perception_job_max_tries

@@ -78,6 +78,16 @@ class Settings(BaseSettings):
     # transaction has committed by the time the worker looks the row up.
     perception_enqueue_delay_seconds: int = 2
 
+    # -- Spatial clustering & segments (SPAT-01..03) --
+    # Reports closer than this are treated as the same physical damage.
+    duplicate_radius_meters: float = 15.0
+    # Canonical points closer than this chain into one road segment.
+    segment_cluster_radius_meters: float = 50.0
+    # An unclaimed existing segment this close to a brand-new cluster is
+    # re-used instead of minting a new identity.
+    segment_reconcile_distance_meters: float = 50.0
+    segmentation_defer_seconds: int = 30
+
     model_config = SettingsConfigDict(
         env_file="backend/.env", env_file_encoding="utf-8", extra="ignore"
     )

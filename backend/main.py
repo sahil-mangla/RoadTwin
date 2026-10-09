@@ -47,9 +47,10 @@ if settings.skeleton_routes_enabled:
 
 # The real citizen ingestion API (INGT-01..04, Phase 2) -- mounted
 # unconditionally, unlike the diagnostic skeleton router above.
-from backend.routes import reports  # noqa: E402
+from backend.routes import reports, segments  # noqa: E402
 
 app.include_router(reports.router)
+app.include_router(segments.router)
 
 try:
     from backend.services.ingestion.upload import ensure_bucket
