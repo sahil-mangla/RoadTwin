@@ -112,6 +112,39 @@ class Settings(BaseSettings):
     evidence_resnapshot_delta: float = 0.10
     corroboration_ip_limit_per_hour: int = 30
 
+    # -- Road health, deterioration & forecast (HLTH-02..04, FCST-01..03) --
+    # PROVISIONAL starting values -- tunable, not validated. Health =
+    # 100 - sum(weight * burden); weights are used as given (keep sum = 1).
+    health_weight_severity: float = 0.50
+    health_weight_density: float = 0.20
+    health_weight_temporal: float = 0.20
+    health_weight_evidence: float = 0.10
+    # Evidence-weighted severity points at which the severity burden is 100.
+    health_severity_saturation: float = 3.0
+    # Evidence-weighted damages per 100 m at which the density burden is 100.
+    health_density_saturation_per_100m: float = 5.0
+    health_density_min_length_meters: float = 50.0
+    # Damage first seen within this window counts as "recent deterioration".
+    health_temporal_window_days: float = 30.0
+    health_temporal_saturation: float = 3.0
+    # A new RoadHealth row is appended when the score moved by at least
+    # `health_resnapshot_delta` points or the last row is older than the
+    # interval (so a stable road still builds a flat, informative history).
+    health_snapshot_interval_hours: float = 24.0
+    health_resnapshot_delta: float = 2.0
+    # Minimum-data gate shared by the deterioration rate and the forecast.
+    history_min_observation_reports: int = 3
+    history_min_points: int = 4
+    history_min_days: float = 14.0
+    history_window_days: float = 180.0
+    # Deterioration labels, in health points per day.
+    deterioration_rapid_per_day: float = -0.5
+    deterioration_slow_per_day: float = -0.1
+    # Forecast: linear OLS below this many points, damped Holt from here up.
+    forecast_holt_min_points: int = 5
+    forecast_failure_health_threshold: float = 40.0
+    forecast_accuracy_tolerance_days: float = 7.0
+
     model_config = SettingsConfigDict(
         env_file="backend/.env", env_file_encoding="utf-8", extra="ignore"
     )

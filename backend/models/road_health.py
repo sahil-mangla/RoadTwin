@@ -17,6 +17,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, UUIDPKMixin
@@ -50,5 +51,9 @@ class RoadHealth(UUIDPKMixin, Base):
     evidence_score: Mapped[float | None] = mapped_column(nullable=True)
     deterioration_rate: Mapped[float | None] = mapped_column(nullable=True)
     risk_score: Mapped[float | None] = mapped_column(nullable=True)
+
+    # Phase 6: the full breakdown behind `health_score` (burdens, weights,
+    # band, damage count, history gate), so every score stays explainable.
+    components: Mapped[dict | None] = mapped_column(postgresql.JSONB, nullable=True)
 
     segment: Mapped["RoadSegment"] = relationship(back_populates="health_records")

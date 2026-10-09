@@ -16,6 +16,7 @@ from backend.services.ingestion.upload import get_report_image_bytes
 from backend.services.perception.detector import load_detector
 from backend.services.perception.pipeline import ReportNotFound, process_report
 from backend.services.perception.queue import enqueue_segmentation
+from backend.services.intelligence.assessment import assess_segments
 from backend.services.intelligence.observations import record_observations
 from backend.services.spatial.segmentation import run_segmentation
 
@@ -63,8 +64,9 @@ async def run_segmentation_job(ctx: dict) -> dict:
     async with async_session_factory() as session:
         segmentation = await run_segmentation(session)
         observations = await record_observations(session)
+        assessment = await assess_segments(session)
         await session.commit()
-    return {**segmentation.__dict__, **observations.__dict__}
+    return {**segmentation.__dict__, **observations.__dict__, **assessment.__dict__}
 
 
 async def _image_path(session, report_id: uuid.UUID) -> str:

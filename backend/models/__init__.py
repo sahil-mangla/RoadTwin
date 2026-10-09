@@ -3,6 +3,7 @@
 from .base import Base
 from .corroboration import ReportCorroboration
 from .detection import Detection
+from .forecast_evaluation import ForecastEvaluation
 from .maintenance_recommendation import MaintenanceRecommendation
 from .prediction import Prediction
 from .rate_limit import SubmissionAttempt
@@ -22,4 +23,5 @@ __all__ = [
     "MaintenanceRecommendation",
     "SubmissionAttempt",
     "ReportCorroboration",
+    "ForecastEvaluation",
 ]

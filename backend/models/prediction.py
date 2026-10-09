@@ -54,5 +54,7 @@ class Prediction(UUIDPKMixin, Base):
     failure_probability: Mapped[float | None] = mapped_column(nullable=True)
     confidence: Mapped[float | None] = mapped_column(nullable=True)
     method: Mapped[str] = mapped_column(nullable=False)
+    # Plain-language account of how this number was produced.
+    explanation: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
 
     segment: Mapped["RoadSegment"] = relationship(back_populates="predictions")
