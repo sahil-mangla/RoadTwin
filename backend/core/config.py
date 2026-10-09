@@ -74,6 +74,9 @@ class Settings(BaseSettings):
     yolo_conf_threshold: float = 0.25
     yolo_image_size: int = 640
     perception_job_max_tries: int = 3
+    # Same-class boxes overlapping at least this much are one defect.
+    detection_merge_iou: float = 0.5
+    detection_merge_containment: float = 0.8
     # Delay before the first attempt so the submitting request's
     # transaction has committed by the time the worker looks the row up.
     perception_enqueue_delay_seconds: int = 2
@@ -87,6 +90,27 @@ class Settings(BaseSettings):
     # re-used instead of minting a new identity.
     segment_reconcile_distance_meters: float = 50.0
     segmentation_defer_seconds: int = 30
+
+    # -- Evidence fusion (EVID-01..04) --
+    # Relative weights; scores are divided by their sum, so these only need
+    # to be proportional. YOLO confidence is one input among five and, on
+    # its own, can never lift an observation to full evidence.
+    evidence_weight_ml_confidence: float = 0.35
+    evidence_weight_observation_count: float = 0.20
+    evidence_weight_spatial_agreement: float = 0.15
+    evidence_weight_temporal_consistency: float = 0.15
+    evidence_weight_community_validation: float = 0.15
+    # Saturation points: the value at which a component reaches 1.0.
+    evidence_count_saturation: int = 4          # independent reporters
+    evidence_temporal_saturation_days: float = 7.0
+    evidence_community_saturation: int = 3      # distinct corroborating voters
+    # Status lifecycle thresholds (SCHM-03).
+    evidence_confirmed_threshold: float = 0.70
+    corroborated_min_independent_reporters: int = 2
+    corroborated_min_votes: int = 2
+    # A new snapshot is appended only when the score moved at least this much.
+    evidence_resnapshot_delta: float = 0.10
+    corroboration_ip_limit_per_hour: int = 30
 
     model_config = SettingsConfigDict(
         env_file="backend/.env", env_file_encoding="utf-8", extra="ignore"

@@ -96,6 +96,8 @@ class RoadObservationRead(BaseModel):
     confidence: float | None
     verification_score: float | None
     contribution_weight: float | None
+    evidence_components: dict | None = None
+    recorded_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -10,7 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.db.repository import RoadSegmentRepository
 from backend.db.session import get_session
 from backend.models.report import Report
-from backend.schemas.entities import RoadSegmentRead
+from backend.models.road_observation import RoadObservation
+from backend.schemas.entities import RoadObservationRead, RoadSegmentRead
 
 router = APIRouter(prefix="/api/segments", tags=["segments"])
 
@@ -69,3 +70,33 @@ async def get_segment(
         canonical_report_count=canon,
         report_ids=report_ids,
     )
+
+
+@router.get("/{segment_id}/observations", response_model=list[RoadObservationRead])
+async def segment_observation_history(
+    segment_id: uuid.UUID,
+    latest_only: bool = False,
+    limit: int = 200,
+    session: AsyncSession = Depends(get_session),
+) -> list[RoadObservationRead]:
+    """The segment's longitudinal history (HLTH-01), oldest damage first.
+
+    Each detection can have several snapshots as its evidence grew;
+    `latest_only` keeps just the newest snapshot of each.
+    """
+    if await RoadSegmentRepository(session).get(segment_id) is None:
+        raise HTTPException(status_code=404, detail="segment not found")
+    stmt = (
+        sa.select(RoadObservation)
+        .where(RoadObservation.road_segment_id == segment_id)
+        .order_by(RoadObservation.observed_at, RoadObservation.recorded_at)
+    )
+    rows = list((await session.scalars(stmt)).all())
+    if latest_only:
+        newest = {}
+        for row in rows:
+            key = row.detection_id or row.id
+            if key not in newest or row.recorded_at >= newest[key].recorded_at:
+                newest[key] = row
+        rows = sorted(newest.values(), key=lambda o: (o.observed_at, o.recorded_at))
+    return [RoadObservationRead.model_validate(o) for o in rows[: max(1, min(limit, 1000))]]

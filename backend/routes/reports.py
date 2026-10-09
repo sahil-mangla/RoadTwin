@@ -18,18 +18,27 @@ import datetime as dt
 import uuid
 
 import pydantic
+import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile, status
 from minio.error import S3Error
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.config import settings
 from backend.db.repository import ReportRepository
+from backend.models.corroboration import ReportCorroboration
 from backend.db.session import get_session
-from backend.schemas.report import ExifGpsCandidate, ReportCreate, ReportImageUrl, ReportRead
+from backend.schemas.report import (
+    CorroborationResult,
+    ExifGpsCandidate,
+    ReportCreate,
+    ReportImageUrl,
+    ReportRead,
+)
 from backend.services.ingestion.identity import get_device_identity
 from backend.services.ingestion.rate_limit import enforce_rate_limits, record_submission_attempt
 from backend.schemas.entities import DetectionRead
-from backend.services.perception.queue import enqueue_perception
+from backend.services.perception.queue import enqueue_perception, enqueue_segmentation
 from backend.services.ingestion.upload import (
     extract_exif_gps,
     generate_object_key,
@@ -196,3 +205,57 @@ async def get_report_image_url(
         url=get_presigned_image_url(report.image_path),
         expires_in_seconds=settings.minio_presigned_url_ttl_seconds,
     )
+
+
+@router.post("/{report_id}/corroborate", response_model=CorroborationResult)
+async def corroborate_report(
+    report_id: uuid.UUID,
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+    device_id: str = Depends(get_device_identity),
+) -> CorroborationResult:
+    """Records this device's vote that the report is real (EVID-04).
+
+    At most one vote per identity per report: the unique constraint on
+    (report_id, identity_key) makes a repeat vote a no-op, so the call is
+    idempotent. A device cannot vote for its own report. Votes are also
+    capped per source IP, because a device identity is cheap to re-mint by
+    clearing cookies.
+    """
+    reports = ReportRepository(session)
+    report = await reports.get(report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="report not found")
+    if report.submitter_identity_key == device_id:
+        raise HTTPException(status_code=409, detail="you cannot corroborate your own report")
+
+    client_ip = request.client.host if request.client else "unknown"
+    window_start = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=1)
+    recent = await session.scalar(
+        sa.select(sa.func.count())
+        .select_from(ReportCorroboration)
+        .where(
+            ReportCorroboration.ip_address == client_ip,
+            ReportCorroboration.created_at >= window_start,
+        )
+    )
+    if recent >= settings.corroboration_ip_limit_per_hour:
+        raise HTTPException(
+            status_code=429, detail="too many corroborations", headers={"Retry-After": "3600"}
+        )
+
+    inserted = await session.scalar(
+        pg_insert(ReportCorroboration)
+        .values(id=uuid.uuid4(), report_id=report_id, identity_key=device_id, ip_address=client_ip)
+        .on_conflict_do_nothing(constraint="uq_report_corroboration_report_identity")
+        .returning(ReportCorroboration.id)
+    )
+    total = await session.scalar(
+        sa.select(sa.func.count())
+        .select_from(ReportCorroboration)
+        .where(ReportCorroboration.report_id == report_id)
+    )
+    await reports.update(report, community_upvotes=total)
+    if inserted is not None:
+        await enqueue_segmentation()  # debounced re-score
+    return CorroborationResult(counted=inserted is not None, community_upvotes=total)

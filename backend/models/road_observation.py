@@ -19,6 +19,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, UUIDPKMixin
@@ -57,5 +58,17 @@ class RoadObservation(UUIDPKMixin, Base):
     confidence: Mapped[float | None] = mapped_column(nullable=True)
     verification_score: Mapped[float | None] = mapped_column(nullable=True)
     contribution_weight: Mapped[float | None] = mapped_column(nullable=True)
+
+    # Phase 5 (EVID-03): the per-component breakdown behind
+    # `verification_score`, so every score stays explainable after the fact.
+    evidence_components: Mapped[dict | None] = mapped_column(
+        postgresql.JSONB, nullable=True
+    )
+    # When this snapshot was written, distinct from `observed_at` (when the
+    # damage was seen). A detection can have several snapshots as its
+    # evidence grows; the newest `recorded_at` is its current state.
+    recorded_at: Mapped[dt.datetime] = mapped_column(
+        sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+    )
 
     segment: Mapped["RoadSegment"] = relationship(back_populates="observations")

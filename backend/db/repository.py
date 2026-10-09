@@ -9,6 +9,7 @@ from typing import Generic, TypeVar
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.models.corroboration import ReportCorroboration
 from backend.models.detection import Detection
 from backend.models.geo import make_linestring, make_point
 from backend.models.maintenance_recommendation import MaintenanceRecommendation
@@ -100,6 +101,12 @@ class SubmissionAttemptRepository(BaseRepository[SubmissionAttempt]):
     """
 
     model = SubmissionAttempt
+
+
+class ReportCorroborationRepository(BaseRepository[ReportCorroboration]):
+    """Append-only votes; the unique constraint enforces one per identity per report."""
+
+    model = ReportCorroboration
 
 
 class DetectionRepository(MutableRepository[Detection]):

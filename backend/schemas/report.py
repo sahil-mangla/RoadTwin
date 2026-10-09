@@ -62,3 +62,10 @@ class ExifGpsCandidate(BaseModel):
     latitude: float | None
     longitude: float | None
     source: str
+
+
+class CorroborationResult(BaseModel):
+    """`counted` is False when this identity had already corroborated the report."""
+
+    counted: bool
+    community_upvotes: int

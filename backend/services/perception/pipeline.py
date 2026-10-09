@@ -11,7 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db.repository import DetectionRepository, ReportRepository
 from backend.models.detection import Detection
+from backend.core.config import settings
 from backend.services.perception.detector import Detector
+from backend.services.perception.postprocess import merge_overlapping
 from backend.services.perception.severity import (
     bbox_area_ratio,
     canonical_damage_type,
@@ -45,7 +47,12 @@ async def process_report(
 
     await session.execute(sa.delete(Detection).where(Detection.report_id == report_id))
     detections = DetectionRepository(session)
-    for raw in result.detections:
+    distinct = merge_overlapping(
+        result.detections,
+        iou_threshold=settings.detection_merge_iou,
+        containment_threshold=settings.detection_merge_containment,
+    )
+    for raw in distinct:
         ratio = bbox_area_ratio(raw.x1, raw.y1, raw.x2, raw.y2, result.width, result.height)
         damage_type = canonical_damage_type(raw.damage_type)
         await detections.create(
@@ -61,4 +68,4 @@ async def process_report(
         )
 
     await reports.update(report, perception_status="done")
-    return len(result.detections)
+    return len(distinct)
